@@ -43,3 +43,17 @@ services:
     volumes:
       - "./www:/var/www:cached"
     tty: true
+  # golang ################################################
+  golang:
+    build: ./golang
+    depends_on:
+      - mysql
+    environment:
+      DB_NAME: db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: mysql
+    volumes:
+      - "./www:/var/www:cached"
+    tty: true
+
