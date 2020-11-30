@@ -29,6 +29,7 @@ services:
       DB_HOST: mysql
     volumes:
       - "./www:/var/www:cached"
+    tty: true
   # python ################################################
   python:
     build: ./python
@@ -41,3 +42,4 @@ services:
       DB_HOST: mysql
     volumes:
       - "./www:/var/www:cached"
+    tty: true

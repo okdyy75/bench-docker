@@ -7,5 +7,3 @@ RUN docker-php-ext-install bcmath pdo_mysql
 COPY ./php.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www
-
-CMD ["php-fpm"]
