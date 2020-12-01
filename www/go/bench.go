@@ -114,6 +114,7 @@ func work() {
 	db := getDB()
 
 	// CSV読み込み
+	println(time.Now().Format("2006-01-02 15:04:05.000000") + " import CSV start")
 	file, err = os.Open("../users.csv")
 	if err != nil {
 		panic(err)
@@ -146,6 +147,7 @@ func work() {
 			panic(err)
 		}
 	}
+	println(time.Now().Format("2006-01-02 15:04:05.000000") + " import CSV end")
 
 	rows, err = db.Query("select * from users order by id")
 	if err != nil {
@@ -153,6 +155,8 @@ func work() {
 	}
 
 	// CSV書き出し
+	println(time.Now().Format("2006-01-02 15:04:05.000000") + " export CSV start ")
+
 	file, err = os.Create("../new_users.csv")
 	if err != nil {
 		panic(err)
@@ -197,8 +201,10 @@ func work() {
 			panic(err)
 		}
 	}
+	println(time.Now().Format("2006-01-02 15:04:05.000000") + " export CSV end")
 
 	// 入力CSVと出力CSVを突合
+	println(time.Now().Format("2006-01-02 15:04:05.000000") + " compare CSV start ")
 	var (
 		file1   *os.File
 		file2   *os.File
@@ -244,7 +250,7 @@ func work() {
 			panic("入力CSVと出力CSVが一致しません")
 		}
 	}
-
+	println(time.Now().Format("2006-01-02 15:04:05.000000") + " compare CSV end ")
 }
 
 func main() {

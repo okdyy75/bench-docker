@@ -65,6 +65,7 @@ def initialize():
 def work():
 
     # CSV読み込み
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' import CSV start')
     with open('../users.csv') as f:
         reader = csv.reader(f)
         next(reader)
@@ -97,12 +98,14 @@ def work():
                 'created_at': row[6],
                 'updated_at': row[7]
             })
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' import CSV end')
 
     cur = dbh().cursor()
     cur.execute('select * from users order by id')
     users = cur.fetchall()
 
     # CSV書き出し
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' export CSV start')
     with open('../new_users.csv', 'w') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         writer.writerow(['id', 'name', 'email', 'email_verified_at', 'password', 'remember_token', 'created_at', 'updated_at'])
@@ -117,8 +120,10 @@ def work():
                 user['created_at'],
                 user['updated_at']
             ])
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' export CSV end')
 
     # 入力CSVと出力CSVを突合
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' compare CSV start')
     f1 = open('../users.csv')
     f2 = open('../new_users.csv')
     reader1 = csv.reader(f1)
@@ -135,7 +140,7 @@ def work():
             and row1[7] == row2[7]
         ):
             raise Exception('入力CSVと出力CSVが一致しません')
-
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' compare CSV end')
 
 """
  main

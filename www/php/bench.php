@@ -65,6 +65,7 @@ function work()
     $dbh = getPDO();
 
     // CSV読み込み
+    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' import CSV start' . PHP_EOL;
     $handle = fopen('../users.csv', 'r');
     fgetcsv($handle); // ヘッダースキップ
     while (($row = fgetcsv($handle)) !== false) {
@@ -98,12 +99,14 @@ EOT;
         $stmt->execute();
     }
     fclose($handle);
+    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' import CSV end' . PHP_EOL;
 
     $stmt = $dbh->query('select * from users order by id');
     $stmt->execute();
     $users = $stmt->fetchall();
 
     // CSV書き出し ※fputcsvは一部ダブルクォーテーションで囲まれたり囲まれなかったりするので使わない
+    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' export CSV start' . PHP_EOL;
     $fp = fopen('../new_users.csv', 'w');
     fwrite($fp, '"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"' . "\n");
     foreach ($users as $user) {
@@ -123,8 +126,10 @@ EOT;
         ]) . PHP_EOL);
     }
     fclose($fp);
+    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' export CSV end' . PHP_EOL;
 
     // 入力CSVと出力CSVを突合
+    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' compare CSV start' . PHP_EOL;
     $handle1 = fopen('../users.csv', 'r');
     $handle2 = fopen('../new_users.csv', 'r');
     while (true) {
@@ -149,6 +154,7 @@ EOT;
     }
     fclose($handle1);
     fclose($handle2);
+    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' compare CSV end' . PHP_EOL;
 }
 
 /**
