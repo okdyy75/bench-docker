@@ -1,15 +1,10 @@
 require "mysql2"
 require "csv"
 
-$db_client
-
-#
 # DB取得
-#
-def getDB
-  return $db_client if defined?($db_client)
-
-  $db_client = Mysql2::Client.new(
+# @return [Mysql2::Client] db_client
+def get_db
+  db_client = Mysql2::Client.new(
     host: ENV.fetch("DB_HOST") { "localhost" },
     port: ENV.fetch("DB_PORT") { "3306" },
     username: ENV.fetch("DB_USER") { "root" },
@@ -17,14 +12,12 @@ def getDB
     database: ENV.fetch("DB_NAME") { "db" },
     encoding: "utf8",
   )
-  $db_client
+  db_client
 end
 
-#
 # 初期化
-#
-def init
-  db = getDB
+# @param [Mysql2::Client] db
+def init(db)
   db.query(<<~EOS)
     CREATE TABLE IF NOT EXISTS `users` (
       `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -44,14 +37,12 @@ def init
   # p db.query("select count(*) as cnt from users;").to_a
 end
 
-#
 # CSV読み込み＆DBインサート＆CSV書き出し
-#
-def work
-  db = getDB()
+# @param [Mysql2::Client] db
+def work(db)
 
   # CSV読み込み
-  p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " import CSV start"
+  print_time("import CSV start")
   CSV.foreach("../import_users.csv", headers: true) do |row|
     statement = db.prepare(<<~EOS)
       INSERT INTO users (
@@ -69,12 +60,12 @@ def work
     # row[0]はidのため1から
     statement.execute(row[1], row[2], row[3], row[4], row[5], row[6], row[7])
   end
-  p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " import CSV end"
+  print_time("import CSV end")
 
   users = db.query("select * from users order by id")
 
   # CSV書き出し
-  p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " export CSV start"
+  print_time("export CSV start")
   file = File.open("./export_users.csv", "w")
   file.write('"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"' << "\n")
   users.each do |row|
@@ -86,10 +77,10 @@ def work
     file.write(user.join(",") << "\n")
   end
   file.close
-  p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " export CSV end"
+  print_time("export CSV end")
 
   # 入力CSVと出力CSVを突合
-  p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " compare CSV start"
+  print_time("compare CSV start")
   file1 = File.open("../import_users.csv", "r")
   file2 = File.open("./export_users.csv", "r")
   while true
@@ -114,14 +105,20 @@ def work
   end
   file1.close
   file2.close
-  p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " compare CSV end"
+  print_time("compare CSV end")
 end
 
-#
-# main
-#
+# 実行時間を出力
+# @param [String]
+def print_time(message)
+  p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " " << message
+end
+
+# メイン処理
 def main
   p "Ruby " << RUBY_VERSION
+
+  db = get_db
 
   times = []
   for i in 1..10
@@ -129,10 +126,10 @@ def main
     p start_time.strftime("%Y-%m-%d %H:%M:%S.%6N")
 
     # 初期化
-    init
+    init(db)
 
     # 負荷処理
-    work
+    work(db)
 
     end_time = Time.now
     p end_time.strftime("%Y-%m-%d %H:%M:%S.%6N")
@@ -146,5 +143,5 @@ def main
   p "平均秒数：" << sprintf("%.6f", avg)
 end
 
-# メイン処理
+# メイン
 main

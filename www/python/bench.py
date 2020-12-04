@@ -13,16 +13,11 @@ config = {
     'db_password': os.environ.get('DB_PASSWORD', ''),
 }
 
-db = None
 
-
-"""
- db取得
-"""
-def dbh():
-    global db
-    if db:
-        return db
+def get_db():
+    """DB取得
+    :rtype: MySQLdb.Connection
+    """
 
     db = MySQLdb.connect(
         host=config['db_host'],
@@ -37,11 +32,13 @@ def dbh():
     return db
 
 
-"""
- 初期化
-"""
-def initialize():
-    cur = dbh().cursor()
+def initialize(db):
+    """初期化
+    :param db: MySQLdb.Connection
+    :rtype: None
+    """
+
+    cur = db.cursor()
     cur.execute('''
         CREATE TABLE IF NOT EXISTS `users` (
             `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -59,18 +56,19 @@ def initialize():
     cur.execute('TRUNCATE users;')
 
 
-"""
- 負荷処理
-"""
-def work():
+def work(db):
+    """CSV読み込み＆DBインサート＆CSV書き出し
+    :param db: MySQLdb.Connection
+    :rtype: None
+    """
 
     # CSV読み込み
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' import CSV start')
+    print_time('import CSV start')
     with open('../import_users.csv') as f:
         reader = csv.reader(f)
         next(reader)
         for row in reader:
-            cur = dbh().cursor()
+            cur = db.cursor()
             cur.execute('''
                 INSERT INTO users (
                     name,
@@ -98,14 +96,14 @@ def work():
                 'created_at': row[6],
                 'updated_at': row[7]
             })
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' import CSV end')
+    print_time('import CSV end')
 
-    cur = dbh().cursor()
+    cur = db.cursor()
     cur.execute('select * from users order by id')
     users = cur.fetchall()
 
     # CSV書き出し
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' export CSV start')
+    print_time('export CSV start')
     with open('./export_users.csv', 'w') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         writer.writerow(['id', 'name', 'email', 'email_verified_at', 'password', 'remember_token', 'created_at', 'updated_at'])
@@ -120,10 +118,10 @@ def work():
                 user['created_at'],
                 user['updated_at']
             ])
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' export CSV end')
+    print_time('export CSV end')
 
     # 入力CSVと出力CSVを突合
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' compare CSV start')
+    print_time('compare CSV start')
     f1 = open('../import_users.csv')
     f2 = open('./export_users.csv')
     reader1 = csv.reader(f1)
@@ -140,14 +138,25 @@ def work():
             and row1[7] == row2[7]
         ):
             raise Exception('入力CSVと出力CSVが一致しません')
-    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' compare CSV end')
+    print_time('compare CSV end')
 
-"""
- main
-"""
+
+def print_time(message):
+    """メイン処理
+    :param message string:
+    :type message: int
+    :rtype: None
+    """
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' ' + message)
+
 def main():
+    """メイン処理
+    :rtype: None
+    """
 
     print('Python ' + sys.version)
+
+    db = get_db()
 
     times = []
     for i in range(10):
@@ -156,10 +165,10 @@ def main():
         print(datetime.fromtimestamp(start).strftime("%Y-%m-%d %H:%M:%S.%f"))
 
         # 初期化
-        initialize()
+        initialize(db)
 
         # 負荷処理
-        work()
+        work(db)
 
         end = datetime.now().timestamp()
         print(datetime.fromtimestamp(end).strftime("%Y-%m-%d %H:%M:%S.%f"))
@@ -174,5 +183,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # メイン処理
+    # メイン
     main()

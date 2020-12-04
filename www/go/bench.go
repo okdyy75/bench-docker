@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"time"
@@ -11,13 +12,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var dbc *sql.DB
-
+// DB取得
 func getDB() *sql.DB {
-
-	if dbc != nil {
-		return dbc
-	}
 
 	host := os.Getenv("DB_HOST")
 	if host == "" {
@@ -44,19 +40,17 @@ func getDB() *sql.DB {
 		"%s%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true",
 		user, password, host, port, name)
 
-	_dbc, err := sql.Open("mysql", dsn)
-	dbc = _dbc
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
 	}
 
-	return _dbc
+	return db
 }
 
-func initialize() {
+// 初期化
+func initialize(db *sql.DB) {
 	var cmd string
-
-	db := getDB()
 
 	cmd = `
 		CREATE TABLE IF NOT EXISTS users (
@@ -86,7 +80,6 @@ func initialize() {
 	// var cnt int
 	// err = db.QueryRow("select count(*) as cnt from users;").Scan(&cnt)
 	// println(cnt)
-
 }
 
 // User ユーザー情報
@@ -101,7 +94,8 @@ type User struct {
 	UpdatedAt       time.Time
 }
 
-func work() {
+// CSV読み込み＆DBインサート＆CSV書き出し
+func work(db *sql.DB) {
 	var (
 		err    error
 		file   *os.File
@@ -111,10 +105,8 @@ func work() {
 		rows   *sql.Rows
 	)
 
-	db := getDB()
-
 	// CSV読み込み
-	println(time.Now().Format("2006-01-02 15:04:05.000000") + " import CSV start")
+	printTime("import CSV start")
 	file, err = os.Open("../import_users.csv")
 	if err != nil {
 		panic(err)
@@ -147,7 +139,7 @@ func work() {
 			panic(err)
 		}
 	}
-	println(time.Now().Format("2006-01-02 15:04:05.000000") + " import CSV end")
+	printTime("import CSV end")
 
 	rows, err = db.Query("select * from users order by id")
 	if err != nil {
@@ -155,7 +147,7 @@ func work() {
 	}
 
 	// CSV書き出し
-	println(time.Now().Format("2006-01-02 15:04:05.000000") + " export CSV start ")
+	printTime("export CSV start")
 
 	file, err = os.Create("./export_users.csv")
 	if err != nil {
@@ -201,17 +193,17 @@ func work() {
 			panic(err)
 		}
 	}
-	println(time.Now().Format("2006-01-02 15:04:05.000000") + " export CSV end")
+	printTime("export CSV end")
 
 	// 入力CSVと出力CSVを突合
-	println(time.Now().Format("2006-01-02 15:04:05.000000") + " compare CSV start ")
+	printTime("compare CSV start")
 	var (
 		file1   *os.File
 		file2   *os.File
 		reader1 *csv.Reader
 		reader2 *csv.Reader
-		lines1  []string
-		lines2  []string
+		row1    []string
+		row2    []string
 		err1    error
 		err2    error
 	)
@@ -230,32 +222,38 @@ func work() {
 	reader1 = csv.NewReader(file1)
 	reader2 = csv.NewReader(file2)
 	for {
-		lines1, err1 = reader1.Read()
-		lines2, err2 = reader2.Read()
-		if len(lines1) != len(lines2) {
-			panic("入力CSVと出力CSVが一致しません")
-		}
-		if err1 != nil && err2 != nil {
+		row1, err1 = reader1.Read()
+		row2, err2 = reader2.Read()
+		if err1 == io.EOF && err2 == io.EOF {
 			// 処理終了
 			break
 		}
-		if !(lines1[0] == lines2[0] &&
-			lines1[1] == lines2[1] &&
-			lines1[2] == lines2[2] &&
-			lines1[3] == lines2[3] &&
-			lines1[4] == lines2[4] &&
-			lines1[5] == lines2[5] &&
-			lines1[6] == lines2[6] &&
-			lines1[7] == lines2[7]) {
+		if !(row1[0] == row2[0] &&
+			row1[1] == row2[1] &&
+			row1[2] == row2[2] &&
+			row1[3] == row2[3] &&
+			row1[4] == row2[4] &&
+			row1[5] == row2[5] &&
+			row1[6] == row2[6] &&
+			row1[7] == row2[7]) {
 			panic("入力CSVと出力CSVが一致しません")
 		}
 	}
-	println(time.Now().Format("2006-01-02 15:04:05.000000") + " compare CSV end ")
+	printTime("compare CSV end")
 }
 
+// 実行時間を出力
+func printTime(message string) {
+	println(time.Now().Format("2006-01-02 15:04:05.000000") + " " + message)
+}
+
+// メイン処理
 func main() {
 
 	println("Go " + runtime.Version())
+
+	db := getDB()
+	defer db.Close()
 
 	times := []float64{}
 	for i := 1; i <= 10; i++ {
@@ -264,10 +262,10 @@ func main() {
 		println(start.Format("2006-01-02 15:04:05.000000"))
 
 		// 初期化
-		initialize()
+		initialize(db)
 
 		// 負荷処理
-		work()
+		work(db)
 
 		end := time.Now()
 		endNanoTime := end.UnixNano()

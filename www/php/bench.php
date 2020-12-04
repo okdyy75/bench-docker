@@ -1,16 +1,12 @@
 <?php
 
 /**
- * PDO取得
+ * DB取得
+ * 
  * @return PDO
  */
-function getPDO()
+function getDB()
 {
-    static $pdo = null;
-    if (!is_null($pdo)) {
-        return $pdo;
-    }
-
     $host = getenv('DB_HOST') ?: 'localhost';
     $port = getenv('DB_PORT') ?: '3306';
     $dbname = getenv('DB_NAME') ?: 'db';
@@ -18,7 +14,7 @@ function getPDO()
     $password = getenv('DB_PASSWORD') ?: '';
     $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8";
 
-    $pdo = new PDO(
+    $db = new PDO(
         $dsn,
         $user,
         $password,
@@ -27,15 +23,17 @@ function getPDO()
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]
     );
-    return $pdo;
+    return $db;
 }
 
 /**
  * 初期化
+ *
+ * @param PDO $db
+ * @return void
  */
-function initialize()
+function initialize($db)
 {
-    $dbh = getPDO();
     $sql = <<<EOT
 CREATE TABLE IF NOT EXISTS `users` (
     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -50,22 +48,20 @@ CREATE TABLE IF NOT EXISTS `users` (
     UNIQUE KEY `users_email_unique` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 EOT;
-    $dbh->query($sql);
-    $dbh->query('TRUNCATE users;');
+    $db->query($sql);
+    $db->query('TRUNCATE users;');
 }
-
 
 /**
  * CSV読み込み＆DBインサート＆CSV書き出し
  *
+ * @param PDO $db
  * @return void
  */
-function work()
+function work($db)
 {
-    $dbh = getPDO();
-
     // CSV読み込み
-    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' import CSV start' . PHP_EOL;
+    printTime('import CSV start');
     $handle = fopen('../import_users.csv', 'r');
     fgetcsv($handle); // ヘッダースキップ
     while (($row = fgetcsv($handle)) !== false) {
@@ -88,8 +84,8 @@ INSERT INTO users (
     :updated_at
 );
 EOT;
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindValue(':name', $row[1]); // $row[0]はidのため1から
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':name', $row[1]);
         $stmt->bindValue(':email', $row[2]);
         $stmt->bindValue(':email_verified_at', $row[3]);
         $stmt->bindValue(':password', $row[4]);
@@ -99,14 +95,14 @@ EOT;
         $stmt->execute();
     }
     fclose($handle);
-    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' import CSV end' . PHP_EOL;
+    printTime('import CSV end');
 
-    $stmt = $dbh->query('select * from users order by id');
+    $stmt = $db->query('select * from users order by id');
     $stmt->execute();
     $users = $stmt->fetchall();
 
     // CSV書き出し ※fputcsvは一部ダブルクォーテーションで囲まれたり囲まれなかったりするので使わない
-    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' export CSV start' . PHP_EOL;
+    printTime('export CSV start');
     $fp = fopen('./export_users.csv', 'w');
     fwrite($fp, '"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"' . "\n");
     foreach ($users as $user) {
@@ -126,10 +122,10 @@ EOT;
         ]) . PHP_EOL);
     }
     fclose($fp);
-    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' export CSV end' . PHP_EOL;
+    printTime('export CSV end');
 
     // 入力CSVと出力CSVを突合
-    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' compare CSV start' . PHP_EOL;
+    printTime('compare CSV start');
     $handle1 = fopen('../import_users.csv', 'r');
     $handle2 = fopen('./export_users.csv', 'r');
     while (true) {
@@ -152,16 +148,30 @@ EOT;
     }
     fclose($handle1);
     fclose($handle2);
-    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' compare CSV end' . PHP_EOL;
+    printTime('compare CSV end');
 }
 
 /**
- * main
+ * 実行時間を出力
+ *
+ * @param string $message
+ * @return void
+ */
+function printTime($message)
+{
+    echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' ' . $message . PHP_EOL;
+}
+
+/**
+ * メイン処理
+ * 
  * @return void
  */
 function main()
 {
     echo 'PHP ' . phpversion() . PHP_EOL;
+
+    $db = getDB();
 
     $times = [];
     for ($i = 1; $i <= 10; $i++) {
@@ -170,10 +180,10 @@ function main()
         echo $start->format('Y-m-d H:i:s.u') . PHP_EOL;
 
         // 初期化
-        initialize();
+        initialize($db);
 
         // 負荷処理
-        work();
+        work($db);
 
         $endMicroTime = microtime(true);
         $end = DateTime::createFromFormat('U.u', $endMicroTime);
