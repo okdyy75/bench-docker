@@ -2,7 +2,7 @@ version: "3"
 services:
   # MySQL ################################################
   mysql:
-    build: ./mysql
+    build: ./docker/mysql
     environment:
       MYSQL_DATABASE: db
       MYSQL_ROOT_PASSWORD: root
@@ -19,7 +19,7 @@ services:
       - "3306:3306"
   # php-fpm ################################################
   php-fpm:
-    build: ./php-fpm
+    build: ./docker/php-fpm
     depends_on:
       - mysql
     environment:
@@ -32,7 +32,7 @@ services:
     tty: true
   # python ################################################
   python:
-    build: ./python
+    build: ./docker/python
     depends_on:
       - mysql
     environment:
@@ -45,7 +45,7 @@ services:
     tty: true
   # golang ################################################
   golang:
-    build: ./golang
+    build: ./docker/golang
     depends_on:
       - mysql
     environment:
@@ -58,7 +58,7 @@ services:
     tty: true
   # ruby ################################################
   ruby:
-    build: ./ruby
+    build: ./docker/ruby
     depends_on:
       - mysql
     environment:
