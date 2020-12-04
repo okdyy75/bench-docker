@@ -66,7 +66,7 @@ function work()
 
     // CSV読み込み
     echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' import CSV start' . PHP_EOL;
-    $handle = fopen('../users.csv', 'r');
+    $handle = fopen('../import_users.csv', 'r');
     fgetcsv($handle); // ヘッダースキップ
     while (($row = fgetcsv($handle)) !== false) {
         $sql = <<<EOT
@@ -107,7 +107,7 @@ EOT;
 
     // CSV書き出し ※fputcsvは一部ダブルクォーテーションで囲まれたり囲まれなかったりするので使わない
     echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' export CSV start' . PHP_EOL;
-    $fp = fopen('../new_users.csv', 'w');
+    $fp = fopen('./export_users.csv', 'w');
     fwrite($fp, '"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"' . "\n");
     foreach ($users as $user) {
         // 数値以外はダブルクォーテーションで囲む
@@ -130,8 +130,8 @@ EOT;
 
     // 入力CSVと出力CSVを突合
     echo DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u') . ' compare CSV start' . PHP_EOL;
-    $handle1 = fopen('../users.csv', 'r');
-    $handle2 = fopen('../new_users.csv', 'r');
+    $handle1 = fopen('../import_users.csv', 'r');
+    $handle2 = fopen('./export_users.csv', 'r');
     while (true) {
         $row1 = fgetcsv($handle1);
         $row2 = fgetcsv($handle2);
@@ -139,16 +139,14 @@ EOT;
             // 処理終了
             break;
         }
-        if (!(
-            $row1[0] === $row2[0]
+        if (!($row1[0] === $row2[0]
             && $row1[1] === $row2[1]
             && $row1[2] === $row2[2]
             && $row1[3] === $row2[3]
             && $row1[4] === $row2[4]
             && $row1[5] === $row2[5]
             && $row1[6] === $row2[6]
-            && $row1[7] === $row2[7]
-        )) {
+            && $row1[7] === $row2[7])) {
             throw new Exception('入力CSVと出力CSVが一致しません');
         }
     }

@@ -66,7 +66,7 @@ def work():
 
     # CSV読み込み
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' import CSV start')
-    with open('../users.csv') as f:
+    with open('../import_users.csv') as f:
         reader = csv.reader(f)
         next(reader)
         for row in reader:
@@ -106,7 +106,7 @@ def work():
 
     # CSV書き出し
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' export CSV start')
-    with open('../new_users.csv', 'w') as f:
+    with open('./export_users.csv', 'w') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         writer.writerow(['id', 'name', 'email', 'email_verified_at', 'password', 'remember_token', 'created_at', 'updated_at'])
         for user in users:
@@ -124,8 +124,8 @@ def work():
 
     # 入力CSVと出力CSVを突合
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' compare CSV start')
-    f1 = open('../users.csv')
-    f2 = open('../new_users.csv')
+    f1 = open('../import_users.csv')
+    f2 = open('./export_users.csv')
     reader1 = csv.reader(f1)
     reader2 = csv.reader(f2)
     for row1, row2 in zip_longest(reader1, reader2):

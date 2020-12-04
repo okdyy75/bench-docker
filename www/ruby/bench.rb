@@ -52,7 +52,7 @@ def work
 
   # CSV読み込み
   p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " import CSV start"
-  CSV.foreach("../users.csv", headers: true) do |row|
+  CSV.foreach("../import_users.csv", headers: true) do |row|
     statement = db.prepare(<<~EOS)
       INSERT INTO users (
         name,
@@ -75,7 +75,7 @@ def work
 
   # CSV書き出し
   p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " export CSV start"
-  file = File.open("../new_users.csv", "w")
+  file = File.open("./export_users.csv", "w")
   file.write('"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"' << "\n")
   users.each do |row|
     user = row.map do |k, v|
@@ -90,8 +90,8 @@ def work
 
   # 入力CSVと出力CSVを突合
   p Time.now.strftime("%Y-%m-%d %H:%M:%S.%6N") << " compare CSV start"
-  file1 = File.open("../users.csv", "r")
-  file2 = File.open("../new_users.csv", "r")
+  file1 = File.open("../import_users.csv", "r")
+  file2 = File.open("./export_users.csv", "r")
   while true
     line1 = file1.gets
     line2 = file2.gets

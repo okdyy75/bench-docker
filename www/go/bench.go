@@ -115,7 +115,7 @@ func work() {
 
 	// CSV読み込み
 	println(time.Now().Format("2006-01-02 15:04:05.000000") + " import CSV start")
-	file, err = os.Open("../users.csv")
+	file, err = os.Open("../import_users.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -157,7 +157,7 @@ func work() {
 	// CSV書き出し
 	println(time.Now().Format("2006-01-02 15:04:05.000000") + " export CSV start ")
 
-	file, err = os.Create("../new_users.csv")
+	file, err = os.Create("./export_users.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -216,11 +216,11 @@ func work() {
 		err2    error
 	)
 
-	file1, err1 = os.Open("../users.csv")
+	file1, err1 = os.Open("../import_users.csv")
 	if err1 != nil {
 		panic(err1)
 	}
-	file2, err2 = os.Open("../new_users.csv")
+	file2, err2 = os.Open("./export_users.csv")
 	if err2 != nil {
 		panic(err2)
 	}
