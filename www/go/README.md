@@ -1,3 +1,13 @@
+# Go
+
+```
+# ビルド＆実行
+go run bench.go
+
+# ベンチ実行
+go build bench.go
+./bench
+```
 
 ## goポイント
 - goではmainより先にinit関数が呼ばれる
