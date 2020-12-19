@@ -1,0 +1,11 @@
+---
+- name: Install Go
+  become: yes
+  become_user: root
+  # リポジトリに表示されるトピックとバージョンは異なる場合があるらしい。実際バージョンがgo1.15.3だった
+  shell: amazon-linux-extras install -y golang1.11
+
+- name: Go get go-sql-driver/mysql
+  become: yes
+  become_user: root
+  shell: go get -u github.com/go-sql-driver/mysql

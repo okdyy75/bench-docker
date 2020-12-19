@@ -1,0 +1,24 @@
+---
+- name: Install common modules
+  become: yes
+  become_user: root
+  yum:
+    state: present
+    name:
+      - mariadb-devel
+      - gcc
+      - git
+
+- name: Deploy .bash_profile
+  template:
+    src: templates/.bash_profile
+    dest: /root/.bash_profile
+
+- name: Source bash_profile
+  shell: source ~/.bash_profile
+
+- name: Git clone
+  git:
+    repo: https://github.com/okdyy75/bench-docker.git
+    dest: /var/www
+    version: master

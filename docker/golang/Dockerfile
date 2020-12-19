@@ -6,4 +6,4 @@ RUN apk update && \
 
 RUN ln -s /go/src/www /var/www
 
-WORKDIR /var/www
+WORKDIR /var/www/web

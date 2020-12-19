@@ -1,0 +1,26 @@
+---
+- name: Install Python
+  become: yes
+  become_user: root
+  shell: amazon-linux-extras install -y python3.8
+
+- name: Install modules
+  become: yes
+  become_user: root
+  yum:
+    state: present
+    name:
+      - python38-pip
+      - python38-devel
+
+- name: Create symbolic link pip3
+  file: 
+    src: /usr/bin/pip3.8
+    dest: /usr/bin/pip3
+    state: link
+
+- name: Create symbolic link python3
+  file: 
+    src: /usr/bin/python3.8
+    dest: /usr/bin/python3
+    state: link

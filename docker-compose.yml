@@ -1,5 +1,14 @@
 version: "3"
 services:
+  # ec2 ################################################
+  ec2:
+    build: ./docker/ec2
+    volumes:
+      - "./ansible:/ansible"
+    ports:
+      - "80:80"
+    tty: true
+    privileged: true
   # MySQL ################################################
   mysql:
     build: ./docker/mysql
@@ -28,7 +37,7 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
   # python ################################################
   python:
@@ -41,7 +50,7 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
   # golang ################################################
   golang:
@@ -54,7 +63,7 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
   # ruby ################################################
   ruby:
@@ -67,5 +76,5 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
