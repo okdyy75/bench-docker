@@ -1,5 +1,13 @@
 version: "3"
 services:
+  # ec2 ################################################
+  ec2:
+    build: ./docker/ec2
+    volumes:
+      - "./ansible:/ansible"
+      - "./www:/var/www:cached"
+    tty: true
+    privileged: true
   # MySQL ################################################
   mysql:
     build: ./docker/mysql

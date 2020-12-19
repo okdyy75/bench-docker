@@ -1,0 +1,23 @@
+---
+- name: Install common modules
+  become: yes
+  become_user: root
+  yum:
+    state: present
+    name:
+      - mariadb-devel
+      - gcc
+
+- name: Check .bash_profile exists
+  stat:
+    path: /root/.bash_profile
+  register: bash_profile
+
+- name: Deploy .bash_profile
+  template:
+    src: templates/.bash_profile
+    dest: /root/.bash_profile
+  when: not bash_profile.stat.exists
+
+- name: Source bash_profile
+  shell: source ~/.bash_profile

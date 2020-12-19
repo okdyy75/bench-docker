@@ -1,0 +1,100 @@
+---
+- name: Istall yum-utils(to use yum-config-manager)
+  become: yes
+  become_user: root
+  yum:
+    state: present
+    name:
+      - yum-utils
+
+- name: Install mysql repo
+  become: yes
+  become_user: root
+  yum: 
+    state: present
+    name: https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+
+- name: Disable mysql80-community
+  become: yes
+  become_user: root
+  command: yum-config-manager --disable mysql80-community
+
+- name: Enable mysql57-community
+  become: yes
+  become_user: root
+  command: yum-config-manager --enable mysql57-community
+
+- name: Install mysql-modules
+  become: yes
+  become_user: root
+  yum:
+    state: present
+    name:
+      - mysql-community-client
+      - mysql-community-server
+      - MySQL-python # ansibleで必要
+
+- name: Add includedir to my.cnf
+  lineinfile:
+    dest: /etc/my.cnf
+    insertafter: '\[mysqld\]'
+    line: "!includedir /etc/my.cnf.d"
+
+- name: Check bench.cnf exists
+  stat:
+    path: /etc/my.cnf.d/bench.cnf
+  register: benchcnf_file
+
+- name: Deploy bench.cnf
+  template:
+    src: templates/bench.cnf
+    dest: /etc/my.cnf.d/bench.cnf
+  when: not benchcnf_file.stat.exists
+
+- name: Start mysqld
+  service:
+    name: mysqld
+    enabled: yes
+    state: started
+
+- name: Get temporary password
+  shell: cat /var/log/mysqld.log | grep "temporary password" | awk '{print $11}'
+  register: mysql_default_password
+  when: not benchcnf_file.stat.exists
+
+- name: Change password validation to the easy way
+  shell: |
+    mysql -u root -p'{{ mysql_default_password.stdout }}' --connect-expired-password -e "SET GLOBAL validate_password_length=4;"
+    mysql -u root -p'{{ mysql_default_password.stdout }}' --connect-expired-password -e "SET GLOBAL validate_password_policy=LOW;"
+  when: not benchcnf_file.stat.exists
+
+- name: Change root user password
+  shell: |
+    mysql -u root -p'{{ mysql_default_password.stdout }}' --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ db_password }}';"
+  when: not benchcnf_file.stat.exists
+
+- name: Remove all anonymous user
+  mysql_user:
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    name: ''
+    state: absent
+
+- name: Grant all to root user
+  mysql_user:
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    name: "{{ db_password }}"
+    priv: "*.*:ALL,GRANT"
+    state: present
+
+- name: Create database
+  mysql_db:
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    name: "{{ db_name }}"
+
+- name: Restart mysqld
+  service:
+    name: mysqld
+    state: restarted

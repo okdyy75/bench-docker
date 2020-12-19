@@ -1,0 +1,5 @@
+---
+- name: Install PHP
+  become: yes
+  become_user: root
+  shell: amazon-linux-extras install -y php7.4

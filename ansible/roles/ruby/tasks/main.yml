@@ -1,0 +1,29 @@
+---
+- name: Install Ruby
+  become: yes
+  become_user: root
+  shell: amazon-linux-extras install -y ruby2.6
+
+- name: Install modules
+  become: yes
+  become_user: root
+  yum:
+    state: present
+    name:
+      - ruby-devel
+
+- name: Install bundler
+  become: yes
+  become_user: root
+  gem:
+    user_install: no
+    state: present
+    name: bundler
+
+- name: Install mysql2
+  become: yes
+  become_user: root
+  gem:
+    user_install: no
+    state: present
+    name: mysql2
