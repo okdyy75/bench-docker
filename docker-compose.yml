@@ -5,7 +5,8 @@ services:
     build: ./docker/ec2
     volumes:
       - "./ansible:/ansible"
-      - "./www:/var/www:cached"
+    ports:
+      - "80:80"
     tty: true
     privileged: true
   # MySQL ################################################

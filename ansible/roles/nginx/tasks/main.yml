@@ -1,0 +1,65 @@
+---
+# nginx
+- name: Install Nginx
+  become: yes
+  become_user: root
+  shell: amazon-linux-extras install -y nginx1.12
+
+- name: Deploy nginx.conf
+  template:
+    src: templates/nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Deploy php-fpm.conf
+  template:
+    src: templates/php-fpm.conf
+    dest: /etc/nginx/conf.d/php-fpm.conf
+
+- name: Restart nginx
+  service:
+    name: nginx
+    enabled: yes
+    state: restarted
+
+# php-fpm
+- name: Replace php-fpm user
+  lineinfile:
+    dest: /etc/php-fpm.d/www.conf
+    regexp: 'user = apache'
+    line: 'user = nginx'
+
+- name: Replace php-fpm group
+  lineinfile:
+    dest: /etc/php-fpm.d/www.conf
+    regexp: 'group = apache'
+    line: 'group = nginx'
+
+- name: Replace php-fpm listen acl_users
+  lineinfile:
+    dest: /etc/php-fpm.d/www.conf
+    regexp: 'listen.acl_users = apache,nginx'
+    line: ';listen.acl_users = apache,nginx'
+
+- name: Replace php-fpm listen owner
+  lineinfile:
+    dest: /etc/php-fpm.d/www.conf
+    regexp: ';listen.owner = nobody'
+    line: 'listen.owner = nginx'
+
+- name: Replace php-fpm listen group
+  lineinfile:
+    dest: /etc/php-fpm.d/www.conf
+    regexp: ';listen.group = nobody'
+    line: 'listen.group = nginx'
+
+- name: Replace php-fpm listen mode
+  lineinfile:
+    dest: /etc/php-fpm.d/www.conf
+    regexp: ';listen.mode = 0660'
+    line: 'listen.mode = 0660'
+
+- name: Restart php-fpm
+  service:
+    name: php-fpm
+    enabled: yes
+    state: restarted

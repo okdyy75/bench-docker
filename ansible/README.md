@@ -12,3 +12,16 @@ ec2# ansible-playbook -i localhost, -c local site.yml
 ec2# source ~/.bash_profile
 
 ```
+
+いつも忘れる
+```
+systemctl start mysqld.service
+systemctl status mysqld.service
+
+systemctl start nginx.service
+systemctl status nginx.service
+
+systemctl start php-fpm.service
+systemctl status php-fpm.service
+
+```
