@@ -36,7 +36,7 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
   # python ################################################
   python:
@@ -49,7 +49,7 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
   # golang ################################################
   golang:
@@ -62,7 +62,7 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
   # ruby ################################################
   ruby:
@@ -75,5 +75,5 @@ services:
       DB_PASSWORD: root
       DB_HOST: mysql
     volumes:
-      - "./www:/var/www:cached"
+      - "./web:/var/www/web:cached"
     tty: true
