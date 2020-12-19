@@ -9,4 +9,4 @@
     - php
     - ruby
     - python
-    - nginx
+    # - nginx # webサーバーとして確認する場合
