@@ -10,4 +10,4 @@
     - php
     - ruby
     - python
-    - nginx # webサーバーとして確認する場合
+    # - nginx # webサーバーとして確認する場合
