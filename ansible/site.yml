@@ -2,6 +2,7 @@
 - hosts: all
   remote_user: ec2-user
   become: true
+  become_user: root
   roles:
     - common
     - mysql
@@ -9,4 +10,4 @@
     - php
     - ruby
     - python
-    # - nginx # webサーバーとして確認する場合
+    - nginx # webサーバーとして確認する場合

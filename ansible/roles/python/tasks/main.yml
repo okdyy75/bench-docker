@@ -1,12 +1,8 @@
 ---
 - name: Install Python
-  become: yes
-  become_user: root
   shell: amazon-linux-extras install -y python3.8
 
 - name: Install modules
-  become: yes
-  become_user: root
   yum:
     state: present
     name:

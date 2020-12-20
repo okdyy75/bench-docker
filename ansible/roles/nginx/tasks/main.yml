@@ -1,8 +1,6 @@
 ---
 # nginx
 - name: Install Nginx
-  become: yes
-  become_user: root
   shell: amazon-linux-extras install -y nginx1.12
 
 - name: Deploy nginx.conf

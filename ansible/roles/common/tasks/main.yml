@@ -1,7 +1,5 @@
 ---
 - name: Install common modules
-  become: yes
-  become_user: root
   yum:
     state: present
     name:

@@ -1,32 +1,22 @@
 ---
 - name: Istall yum-utils(to use yum-config-manager)
-  become: yes
-  become_user: root
   yum:
     state: present
     name:
       - yum-utils
 
 - name: Install mysql repo
-  become: yes
-  become_user: root
   yum: 
     state: present
     name: https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
 
 - name: Disable mysql80-community
-  become: yes
-  become_user: root
   command: yum-config-manager --disable mysql80-community
 
 - name: Enable mysql57-community
-  become: yes
-  become_user: root
   command: yum-config-manager --enable mysql57-community
 
 - name: Install mysql-modules
-  become: yes
-  become_user: root
   yum:
     state: present
     name:
@@ -35,8 +25,6 @@
       - MySQL-python # ansibleで必要
 
 - name: Deploy my.cnf
-  become: yes
-  become_user: root
   template:
     src: templates/my.cnf
     dest: /etc/my.cnf
