@@ -34,11 +34,12 @@
       - mysql-community-server
       - MySQL-python # ansibleで必要
 
-- name: Add includedir to my.cnf
-  lineinfile:
+- name: Deploy my.cnf
+  become: yes
+  become_user: root
+  template:
+    src: templates/my.cnf
     dest: /etc/my.cnf
-    insertafter: '\[mysqld\]'
-    line: "!includedir /etc/my.cnf.d"
 
 - name: Check bench.cnf exists
   stat:
@@ -49,13 +50,13 @@
   template:
     src: templates/bench.cnf
     dest: /etc/my.cnf.d/bench.cnf
-  when: not benchcnf_file.stat.exists
 
 - name: Start mysqld
   service:
     name: mysqld
     enabled: yes
     state: started
+  when: not benchcnf_file.stat.exists
 
 - name: Get temporary password
   shell: cat /var/log/mysqld.log | grep "temporary password" | awk '{print $11}'
@@ -79,6 +80,7 @@
     login_password: "{{ db_password }}"
     name: ''
     state: absent
+  when: not benchcnf_file.stat.exists
 
 - name: Grant all to root user
   mysql_user:
@@ -87,12 +89,14 @@
     name: "{{ db_password }}"
     priv: "*.*:ALL,GRANT"
     state: present
+  when: not benchcnf_file.stat.exists
 
 - name: Create database
   mysql_db:
     login_user: "{{ db_user }}"
     login_password: "{{ db_password }}"
     name: "{{ db_name }}"
+  when: not benchcnf_file.stat.exists
 
 - name: Restart mysqld
   service:
