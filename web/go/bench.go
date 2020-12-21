@@ -102,6 +102,7 @@ func work(db *sql.DB) {
 		reader *csv.Reader
 		lines  []string
 		line   string
+		stmt   *sql.Stmt
 		rows   *sql.Rows
 	)
 
@@ -113,6 +114,20 @@ func work(db *sql.DB) {
 	}
 	defer file.Close()
 
+	stmt, err = db.Prepare(`
+		INSERT INTO users (
+			name,
+			email,
+			email_verified_at,
+			password,
+			remember_token,
+			created_at,
+			updated_at
+		) values (
+			?, ?, ?, ?, ?, ?, ?
+		);
+	`)
+
 	reader = csv.NewReader(file)
 	_, err = reader.Read() // ヘッダースキップ
 	for {
@@ -121,20 +136,7 @@ func work(db *sql.DB) {
 			break
 		}
 
-		// lines[0]はidのため1から
-		_, err = db.Exec(`
-			INSERT INTO users (
-				name,
-				email,
-				email_verified_at,
-				password,
-				remember_token,
-				created_at,
-				updated_at
-			) values (
-				?, ?, ?, ?, ?, ?, ?
-			);
-		`, lines[1], lines[2], lines[3], lines[4], lines[5], lines[6], lines[7])
+		_, err = stmt.Exec(lines[1], lines[2], lines[3], lines[4], lines[5], lines[6], lines[7])
 		if err != nil {
 			panic(err)
 		}
