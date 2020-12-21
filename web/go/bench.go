@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -103,6 +104,7 @@ func work(db *sql.DB) {
 		lines  []string
 		line   string
 		stmt   *sql.Stmt
+		writer *bufio.Writer
 		rows   *sql.Rows
 	)
 
@@ -112,7 +114,6 @@ func work(db *sql.DB) {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
 
 	stmt, err = db.Prepare(`
 		INSERT INTO users (
@@ -141,6 +142,7 @@ func work(db *sql.DB) {
 			panic(err)
 		}
 	}
+	file.Close()
 	printTime("import CSV end")
 
 	rows, err = db.Query("select * from users order by id")
@@ -155,10 +157,10 @@ func work(db *sql.DB) {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
 
 	// ヘッダー書き込み
-	_, err = file.WriteString(`"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"` + "\n")
+	writer = bufio.NewWriter(file)
+	_, err = writer.WriteString(`"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"` + "\n")
 	if err != nil {
 		panic(err)
 	}
@@ -190,11 +192,14 @@ func work(db *sql.DB) {
 			user.CreatedAt.Format("2006-01-02 15:04:05"),
 			user.UpdatedAt.Format("2006-01-02 15:04:05"))
 
-		_, err = file.WriteString(line)
+		_, err = writer.WriteString(line)
+
 		if err != nil {
 			panic(err)
 		}
 	}
+	writer.Flush()
+	file.Close()
 	printTime("export CSV end")
 
 	// 入力CSVと出力CSVを突合
@@ -218,8 +223,6 @@ func work(db *sql.DB) {
 	if err2 != nil {
 		panic(err2)
 	}
-	defer file1.Close()
-	defer file2.Close()
 
 	reader1 = csv.NewReader(file1)
 	reader2 = csv.NewReader(file2)
@@ -241,6 +244,8 @@ func work(db *sql.DB) {
 			panic("入力CSVと出力CSVが一致しません")
 		}
 	}
+	file1.Close()
+	file2.Close()
 	printTime("compare CSV end")
 }
 
