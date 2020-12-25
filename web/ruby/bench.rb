@@ -43,22 +43,21 @@ def work(db)
 
   # CSV読み込み
   print_time("import CSV start")
+  stmt = db.prepare(<<~EOS)
+  INSERT INTO users (
+    name,
+    email,
+    email_verified_at,
+    password,
+    remember_token,
+    created_at,
+    updated_at
+  ) values (
+    ?, ?, ?, ?, ?, ?, ?
+  );
+EOS
   CSV.foreach("../import_users.csv", headers: true) do |row|
-    statement = db.prepare(<<~EOS)
-      INSERT INTO users (
-        name,
-        email,
-        email_verified_at,
-        password,
-        remember_token,
-        created_at,
-        updated_at
-      ) values (
-        ?, ?, ?, ?, ?, ?, ?
-      );
-    EOS
-    # row[0]はidのため1から
-    statement.execute(row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+    stmt.execute(row[1], row[2], row[3], row[4], row[5], row[6], row[7])
   end
   print_time("import CSV end")
 
@@ -120,22 +119,22 @@ def main
 
   db = get_db
 
-    start_time = Time.now
+  start_time = Time.now
   p start_time.strftime("%Y-%m-%d %H:%M:%S.%6N") << " main start"
 
-    # 初期化
-    init(db)
+  # 初期化
+  init(db)
 
-    # 負荷処理
-    work(db)
+  # 負荷処理
+  work(db)
 
-    end_time = Time.now
+  end_time = Time.now
   p end_time.strftime("%Y-%m-%d %H:%M:%S.%6N") << " main end"
 
   # 秒数
-    s = end_time - start_time
+  s = end_time - start_time
   p sprintf("実行秒数：%.6f", s)
-  end
+end
 
 # メイン処理
 main

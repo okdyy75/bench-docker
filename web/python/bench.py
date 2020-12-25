@@ -66,36 +66,24 @@ def work(db):
     print_time('import CSV start')
     with open('../import_users.csv') as f:
         reader = csv.reader(f)
-        next(reader)
+        next(reader)  # ヘッダースキップ
+
+        stmt = '''
+            INSERT INTO users (
+                name,
+                email,
+                email_verified_at,
+                password,
+                remember_token,
+                created_at,
+                updated_at
+            ) values (
+                %s, %s, %s, %s, %s, %s, %s
+            );
+        '''
+        cur = db.cursor()
         for row in reader:
-            cur = db.cursor()
-            cur.execute('''
-                INSERT INTO users (
-                    name,
-                    email,
-                    email_verified_at,
-                    password,
-                    remember_token,
-                    created_at,
-                    updated_at
-                ) values (
-                    %(name)s,
-                    %(email)s,
-                    %(email_verified_at)s,
-                    %(password)s,
-                    %(remember_token)s,
-                    %(created_at)s,
-                    %(updated_at)s
-                );
-            ''', {
-                'name': row[1],  # row[0]はidのため1から
-                'email': row[2],
-                'email_verified_at': row[3],
-                'password': row[4],
-                'remember_token': row[5],
-                'created_at': row[6],
-                'updated_at': row[7]
-            })
+            cur.execute(stmt, (row[1], row[2], row[3], row[4], row[5], row[6], row[7],))
     print_time('import CSV end')
 
     cur = db.cursor()

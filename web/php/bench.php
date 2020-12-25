@@ -64,35 +64,23 @@ function work($db)
     printTime('import CSV start');
     $handle = fopen('../import_users.csv', 'r');
     fgetcsv($handle); // ヘッダースキップ
-    while (($row = fgetcsv($handle)) !== false) {
-        $sql = <<<EOT
-INSERT INTO users (
-    name,
-    email,
-    email_verified_at,
-    password,
-    remember_token,
-    created_at,
-    updated_at
-) values (
-    :name,
-    :email,
-    :email_verified_at,
-    :password,
-    :remember_token,
-    :created_at,
-    :updated_at
-);
+
+    $sql = <<<EOT
+        INSERT INTO users (
+            name,
+            email,
+            email_verified_at,
+            password,
+            remember_token,
+            created_at,
+            updated_at
+        ) values (
+            ?, ?, ?, ?, ?, ?, ?
+        );
 EOT;
-        $stmt = $db->prepare($sql);
-        $stmt->bindValue(':name', $row[1]);
-        $stmt->bindValue(':email', $row[2]);
-        $stmt->bindValue(':email_verified_at', $row[3]);
-        $stmt->bindValue(':password', $row[4]);
-        $stmt->bindValue(':remember_token', $row[5]);
-        $stmt->bindValue(':created_at', $row[6]);
-        $stmt->bindValue(':updated_at', $row[7]);
-        $stmt->execute();
+    $stmt = $db->prepare($sql);
+    while (($row = fgetcsv($handle)) !== false) {
+        $stmt->execute([$row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7]]);
     }
     fclose($handle);
     printTime('import CSV end');
