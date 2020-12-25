@@ -18,9 +18,6 @@ services:
       TZ: Asia/Tokyo
     expose:
       - "3306"
-    command: 
-      - "--character-set-server=utf8"
-      # - "--default-authentication-plugin=mysql_native_password" # MySQL 8.0使用時に必要
     volumes:
       - "./.data/mysql:/var/lib/mysql"
       - "./log/mysql:/var/log/mysql"
