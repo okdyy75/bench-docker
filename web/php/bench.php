@@ -98,7 +98,6 @@ EOT;
     printTime('import CSV end');
 
     $stmt = $db->query('select * from users order by id');
-    $stmt->execute();
     $users = $stmt->fetchall();
 
     // CSV書き出し ※fputcsvは一部ダブルクォーテーションで囲まれたり囲まれなかったりするので使わない
