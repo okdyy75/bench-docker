@@ -23,6 +23,19 @@ services:
       - "./log/mysql:/var/log/mysql"
     ports:
       - "3306:3306"
+  # Nginx ################################################
+  nginx:
+    build: ./docker/nginx
+    environment:
+      TZ: Asia/Tokyo
+    depends_on:
+      - php-fpm
+      - laravel
+    volumes:
+      - "./web:/var/www/web:cached"
+      - "./log/nginx:/var/log/nginx"
+    ports:
+      - "80:80"
   # php-fpm ################################################
   php-fpm:
     build: ./docker/php-fpm
