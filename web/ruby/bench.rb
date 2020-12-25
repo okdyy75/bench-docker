@@ -120,10 +120,8 @@ def main
 
   db = get_db
 
-  times = []
-  for i in 1..10
     start_time = Time.now
-    p start_time.strftime("%Y-%m-%d %H:%M:%S.%6N")
+  p start_time.strftime("%Y-%m-%d %H:%M:%S.%6N") << " main start"
 
     # 初期化
     init(db)
@@ -132,16 +130,12 @@ def main
     work(db)
 
     end_time = Time.now
-    p end_time.strftime("%Y-%m-%d %H:%M:%S.%6N")
+  p end_time.strftime("%Y-%m-%d %H:%M:%S.%6N") << " main end"
 
+  # 秒数
     s = end_time - start_time
-    p sprintf("%.6f", s)
-    times << s
+  p sprintf("実行秒数：%.6f", s)
   end
 
-  avg = times.sum / times.length
-  p "平均秒数：" << sprintf("%.6f", avg)
-end
-
-# メイン
+# メイン処理
 main

@@ -173,30 +173,23 @@ function main()
 
     $db = getDB();
 
-    $times = [];
-    for ($i = 1; $i <= 10; $i++) {
-        $startMicroTime = microtime(true);
-        $start = DateTime::createFromFormat('U.u', $startMicroTime);
-        echo $start->format('Y-m-d H:i:s.u') . PHP_EOL;
+    $startMicroTime = microtime(true);
+    $start = DateTime::createFromFormat('U.u', $startMicroTime);
+    echo $start->format('Y-m-d H:i:s.u') . ' main start' . PHP_EOL;
 
-        // 初期化
-        initialize($db);
+    // 初期化
+    initialize($db);
 
-        // 負荷処理
-        work($db);
+    // 負荷処理
+    work($db);
 
-        $endMicroTime = microtime(true);
-        $end = DateTime::createFromFormat('U.u', $endMicroTime);
-        echo $end->format('Y-m-d H:i:s.u') . PHP_EOL;
+    $endMicroTime = microtime(true);
+    $end = DateTime::createFromFormat('U.u', $endMicroTime);
+    echo $end->format('Y-m-d H:i:s.u') . ' main end' . PHP_EOL;
 
-        // 秒数
-        $s = ($endMicroTime - $startMicroTime);
-        echo $s . PHP_EOL;
-
-        $times[] = $s;
-    }
-    $avg = array_sum($times) / count($times);
-    echo '平均秒数：' . $avg . PHP_EOL;
+    // 秒数
+    $s = ($endMicroTime - $startMicroTime);
+    echo '実行秒数：' . $s . PHP_EOL;
 }
 
 // メイン処理

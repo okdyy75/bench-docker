@@ -262,32 +262,21 @@ func main() {
 	db := getDB()
 	defer db.Close()
 
-	times := []float64{}
-	for i := 1; i <= 10; i++ {
-		start := time.Now()
-		startNanoTime := start.UnixNano()
-		println(start.Format("2006-01-02 15:04:05.000000"))
+	start := time.Now()
+	startNanoTime := start.UnixNano()
+	println(start.Format("2006-01-02 15:04:05.000000") + " main start")
 
-		// 初期化
-		initialize(db)
+	// 初期化
+	initialize(db)
 
-		// 負荷処理
-		work(db)
+	// 負荷処理
+	work(db)
 
-		end := time.Now()
-		endNanoTime := end.UnixNano()
-		println(end.Format("2006-01-02 15:04:05.000000"))
+	end := time.Now()
+	endNanoTime := end.UnixNano()
+	println(end.Format("2006-01-02 15:04:05.000000") + " main end")
 
-		// 秒に変換
-		s := float64(endNanoTime-startNanoTime) / float64(1000*1000*1000) // ミリ * マイクロ * ナノ
-		println(fmt.Printf("%f", s))
-		times = append(times, s)
-	}
-	var sum float64
-	for _, s := range times {
-		sum += s
-	}
-	avg := float64(sum / float64(len(times)))
-	println(fmt.Printf("平均秒数：%f", avg))
-
+	// 秒に変換
+	s := float64(endNanoTime-startNanoTime) / float64(1000*1000*1000) // ミリ * マイクロ * ナノ
+	println(fmt.Sprintf("実行秒数：%f", s))
 }

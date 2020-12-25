@@ -149,6 +149,7 @@ def print_time(message):
     """
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + ' ' + message)
 
+
 def main():
     """メイン処理
     :rtype: None
@@ -158,28 +159,21 @@ def main():
 
     db = get_db()
 
-    times = []
-    for i in range(10):
-        start = datetime.now().timestamp()
+    start = datetime.now().timestamp()
 
-        print(datetime.fromtimestamp(start).strftime("%Y-%m-%d %H:%M:%S.%f"))
+    print(datetime.fromtimestamp(start).strftime("%Y-%m-%d %H:%M:%S.%f"))
 
-        # 初期化
-        initialize(db)
+    # 初期化
+    initialize(db)
 
-        # 負荷処理
-        work(db)
+    # 負荷処理
+    work(db)
 
-        end = datetime.now().timestamp()
-        print(datetime.fromtimestamp(end).strftime("%Y-%m-%d %H:%M:%S.%f"))
+    end = datetime.now().timestamp()
+    print(datetime.fromtimestamp(end).strftime("%Y-%m-%d %H:%M:%S.%f"))
 
-        s = end - start
-        print('%f' % s)
-
-        times.append(s)
-
-    svg = sum(times) / len(times)
-    print('平均秒数：%f' % svg)
+    s = end - start
+    print('実行秒数：%f' % s)
 
 
 if __name__ == '__main__':
