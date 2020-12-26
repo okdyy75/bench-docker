@@ -58,6 +58,11 @@ if [ "$LANG_FLG" = 1 ]; then
       pip install -r ./requirements.txt
       COMMAND="cd /var/www/web/python; time -f 'real %e user %U sys %S' -a -o /tmp/mtime.$$ python bench.py"
       ;;
+    python3)
+      cd /var/www/web/python
+      pip3 install -r ./requirements.txt
+      COMMAND="cd /var/www/web/python; time -f 'real %e user %U sys %S' -a -o /tmp/mtime.$$ python3 bench.py"
+      ;;
     php)
       COMMAND="cd /var/www/web/php; time -f 'real %e user %U sys %S' -a -o /tmp/mtime.$$ php bench.php"
       ;;
