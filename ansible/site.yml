@@ -6,6 +6,8 @@
   roles:
     - role: common
       tags: common
+    - role: clone
+      tags: clone
     - role: mysql
       tags: mysql
     - role: go

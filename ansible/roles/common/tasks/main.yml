@@ -11,10 +11,3 @@
   template:
     src: templates/.bash_profile
     dest: /root/.bash_profile
-
-
-- name: Git clone
-  git:
-    repo: https://github.com/okdyy75/bench-docker.git
-    dest: /var/www
-    version: main
