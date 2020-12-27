@@ -3,7 +3,7 @@
 
 ```
 # ec2に入る
-dc exec ec2 sh
+dc exec ec2 bash -l
 
 # ansible実行
 ec2# ansible-playbook -i localhost, -c local site.yml
