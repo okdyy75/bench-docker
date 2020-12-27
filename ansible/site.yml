@@ -4,10 +4,16 @@
   become: true
   become_user: root
   roles:
-    - common
-    - mysql
-    - go
-    - php
-    - ruby
-    - python
+    - role: common
+      tags: common
+    - role: mysql
+      tags: mysql
+    - role: go
+      tags: go
+    - role: php
+      tags: php
+    - role: ruby
+      tags: ruby
+    - role: python
+      tags: python
     # - nginx # webサーバーとして確認する場合
