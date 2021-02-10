@@ -19,3 +19,12 @@ https://aws.amazon.com/jp/ec2/instance-types/
 | m5d.large       |  2   |    8        | 1 x 75 NVMe SSD          | 最大 10                 | 最大 4,750       |
 
 - Amazon Linux 2 AMI (HVM), SSD Volume Type - ami-00f045aed21a55240 (64 ビット x86)
+
+
+ローカルで動作確認
+```
+docker-compose run --rm golang sh -c 'sh bench.sh --lang=go --count=10'
+docker-compose run --rm php-fpm sh -c 'sh bench.sh --lang=php --count=10'
+docker-compose run --rm python sh -c 'sh bench.sh --lang=python --count=10'
+docker-compose run --rm ruby sh -c 'sh bench.sh --lang=ruby --count=10'
+```
