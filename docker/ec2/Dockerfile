@@ -1,4 +1,4 @@
-FROM amazonlinux:2.0.20200722.0
+FROM amazonlinux:2.0.20210126.0
 
 RUN yum -y update && \
     amazon-linux-extras install -y epel && \

@@ -1,3 +1,26 @@
 ---
-- name: Install PHP
-  shell: amazon-linux-extras install -y php7.4
+- name: Install epel repo
+  yum: 
+    state: present
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+- name: Install remi repo
+  yum: 
+    state: present
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+
+- name: Install PHP8.0
+  yum: 
+    state: present
+    enablerepo: epel,remi
+    name:
+      - php80
+      - php80-php-bcmath
+      - php80-php-pdo
+      - php80-php-mysqlnd
+
+- name: Create symbolic link php
+  file: 
+    src: /usr/bin/php80
+    dest: /usr/bin/php
+    state: link
