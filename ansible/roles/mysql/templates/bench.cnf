@@ -1,5 +1,5 @@
 [mysqld]
-character-set-server=utf8
+character-set-server=utf8mb4
 
 # hiden no yatu
 # innodb_doublewrite = 0

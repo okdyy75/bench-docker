@@ -6,6 +6,7 @@
       - mariadb-devel
       - gcc
       - git
+      - time
 
 - name: Deploy .bash_profile
   template:
