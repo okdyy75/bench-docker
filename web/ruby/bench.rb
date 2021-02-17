@@ -67,13 +67,19 @@ EOS
   print_time("export CSV start")
   file = File.open("./export_users.csv", "w")
   file.write('"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"' << "\n")
-  users.each do |row|
-    user = row.map do |k, v|
-      v = v.strftime("%Y-%m-%d %H:%M:%S") if v.is_a?(Time)
-      v = %Q{"#{v}"} if !v.is_a?(Integer)
-      v
-    end
-    file.write(user.join(",") << "\n")
+  users.each do |user|
+    line = sprintf(
+      '%d,"%s","%s","%s","%s","%s","%s","%s"' << "\n",
+      user['id'],
+      user['name'],
+      user['email'],
+      user['email_verified_at'].strftime("%Y-%m-%d %H:%M:%S"),
+      user['password'],
+      user['remember_token'],
+      user['created_at'].strftime("%Y-%m-%d %H:%M:%S"),
+      user['updated_at'].strftime("%Y-%m-%d %H:%M:%S"),
+    )
+    file.write(line)
   end
   file.close
   print_time("export CSV end")

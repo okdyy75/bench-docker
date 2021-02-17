@@ -104,11 +104,8 @@ EOT;
     ob_start();
     echo '"id","name","email","email_verified_at","password","remember_token","created_at","updated_at"' . "\n";
     foreach ($users as $user) {
-        // 数値以外はダブルクォーテーションで囲む
-        $user = array_map(function ($item) {
-            return is_numeric($item) ? $item : '"' . $item . '"';
-        }, $user);
-        echo implode(',', [
+        printf(
+            '%d,"%s","%s","%s","%s","%s","%s","%s"'."\n",
             $user['id'],
             $user['name'],
             $user['email'],
@@ -117,7 +114,7 @@ EOT;
             $user['remember_token'],
             $user['created_at'],
             $user['updated_at'],
-        ]) . "\n";
+        );
     }
     file_put_contents('./export_users.csv', ob_get_clean());
     printTime('export CSV end');
