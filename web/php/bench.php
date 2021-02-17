@@ -78,10 +78,12 @@ function work($db)
             ?, ?, ?, ?, ?, ?, ?
         );
 EOT;
+    $db->beginTransaction();
     $stmt = $db->prepare($sql);
     while (($row = fgetcsv($handle)) !== false) {
         $stmt->execute([$row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7]]);
     }
+    $db->commit();
     fclose($handle);
     printTime('import CSV end');
 
