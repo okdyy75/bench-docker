@@ -65,7 +65,14 @@ function work($db)
     $handle = fopen('../import_users.csv', 'r');
     fgetcsv($handle); // ヘッダースキップ
 
-    $sql = <<<EOT
+    // バルクインサート
+    $rows = [];
+    while (($row = fgetcsv($handle)) !== false) {
+        $rows[] = $row;
+    }
+    $rowsList = array_chunk($rows, 1000);
+    foreach ($rowsList as $rows) {
+        $sql = <<<EOT
         INSERT INTO users (
             name,
             email,
@@ -74,13 +81,17 @@ function work($db)
             remember_token,
             created_at,
             updated_at
-        ) values (
-            ?, ?, ?, ?, ?, ?, ?
-        );
+        ) values 
 EOT;
-    $stmt = $db->prepare($sql);
-    while (($row = fgetcsv($handle)) !== false) {
-        $stmt->execute([$row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7]]);
+        $params = [];
+        $values = [];
+        foreach ($rows as $row) {
+            $params[] = "(?, ?, ?, ?, ?, ?, ?)";
+            $values = array_merge($values, [$row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7]]);
+        }
+        $sql .= implode(',', $params);
+        $stmt = $db->prepare($sql);
+        $stmt->execute($values);
     }
     fclose($handle);
     printTime('import CSV end');
