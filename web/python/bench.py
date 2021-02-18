@@ -93,7 +93,7 @@ def work(db):
     # CSV書き出し
     print_time('export CSV start')
     with open('./export_users.csv', 'w') as f:
-        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC, lineterminator='\n')
         writer.writerow(['id', 'name', 'email', 'email_verified_at', 'password', 'remember_token', 'created_at', 'updated_at'])
         for user in users:
             writer.writerow([
