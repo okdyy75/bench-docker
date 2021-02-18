@@ -116,8 +116,8 @@ resource "aws_key_pair" "y-oka-web-ec2-key-pair" {
 
 # Webサーバー
 resource "aws_instance" "y-oka-web-ec2" {
-  ami                    = "ami-00f045aed21a55240"
-  instance_type          = "m5d.large"
+  ami                    = "ami-0992fc94ca0f1415a"
+  instance_type          = "m5.large"
   key_name               = aws_key_pair.y-oka-web-ec2-key-pair.id
   subnet_id              = aws_subnet.y-oka-pub-subnet-a.id
   vpc_security_group_ids = [aws_security_group.y-oka-pub-sg.id]
