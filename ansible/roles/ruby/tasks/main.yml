@@ -36,15 +36,3 @@
     state: present
     name:
       - ruby-devel
-
-- name: Install bundler
-  gem:
-    user_install: no
-    state: present
-    name: bundler
-
-- name: Install mysql2
-  gem:
-    user_install: no
-    state: present
-    name: mysql2
