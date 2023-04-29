@@ -8,6 +8,7 @@ services:
     build: ./docker/ec2
     volumes:
       - "./ansible:/ansible"
+      - "./web:/var/www/web:cached"
     ports:
       - "88:80"
     tty: true
